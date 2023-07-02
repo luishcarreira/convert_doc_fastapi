@@ -8,6 +8,7 @@ WORKDIR /code
 COPY ./requirements.txt /code/requirements.txt
 
 # 
+RUN apk add libreoffice
 RUN pip install --no-cache-dir --upgrade -r /code/requirements.txt
 
 # 
