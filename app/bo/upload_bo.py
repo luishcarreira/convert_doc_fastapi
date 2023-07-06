@@ -1,6 +1,7 @@
 import os
 import subprocess
 import re
+from typing import List
 
 from PyPDF2 import PdfReader, PdfWriter, PdfFileReader
 from reportlab.pdfgen import canvas
@@ -9,35 +10,48 @@ from reportlab.lib import colors
 from reportlab.lib.utils import ImageReader
 from reportlab.lib.pagesizes import A4
 
+from docx import Document
+
 class UploadBo:
 
-    """async def replaceString(arquivo_request: ArquivoRequest) -> str:
+    async def replaceString(file: bytes, tags: str, values: str) -> str:
         with open("arquivo.docx", "wb") as arquivo_temporario:
-            arquivo_temporario.write(arquivo_request.file)
+            arquivo_temporario.write(file)
 
         doc = Document("arquivo.docx")
 
-        footer_tables = []
+        tags_split = tags.split(',')
+        values_split = values.split(',')
+
+        print(tags_split)
+        print(values_split)
 
         for section in doc.sections:
             footer = section.footer
             if footer is not None:
                 for table in footer.tables:
-                    footer_tables.append(table)
+                    for row in table.rows:
+                        for cell in row.cells:
+                            for paragraph in cell.paragraphs:
+                                for i in range(len(tags_split)):
+                                    if tags[i] in paragraph.text:
+                                        paragraph.runs[0].text = paragraph.runs[0].text.replace(tags[i], values[i])
+                                # if '#elaborador#' in paragraph.text:
+                                #     paragraph.runs[0].text = paragraph.runs[0].text.replace("#elaborador#", "João")
+                
 
-        cells = []
+        doc.save("arquivo.docx")
 
-        for table in footer_tables:
-            for row in table.rows:
-                for cell in row.cells:
-                    cells.append(cell.text)
+        with open("arquivo.docx", "rb") as arquivo_docx:
+            conteudo = arquivo_docx.read()
 
         os.remove("arquivo.docx")
 
-        return cells"""
+        return conteudo
 
 
     async def convertToPdf(file: str):
+        #version windows
         '''caminho_docx = "arquivo.docx"
 
         with open(caminho_docx, "wb") as arquivo_temporario:
@@ -103,9 +117,9 @@ class UploadBo:
         return conteudo_pdf
     
 
-    async def convert_to(arquivo_request: ArquivoRequest) -> str:
+    async def convert_to(file: bytes) -> str:
         with open("arquivo.docx", "wb") as arquivo_temporario:
-            arquivo_temporario.write(arquivo_request.file)
+            arquivo_temporario.write(file)
 
         args = ['libreoffice', '--headless', '--convert-to', 'pdf', '--outdir', '.', 'arquivo.docx']
         

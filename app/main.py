@@ -14,18 +14,9 @@ from reportlab.lib import colors
 from reportlab.lib.utils import ImageReader
 from reportlab.lib.pagesizes import A4
 
-#from upload_bo import UploadBo
+from bo.upload_bo import UploadBo
 
 app = FastAPI()
-
-
-class Tags(BaseModel):
-    tag: str
-    valor: str
-
-class ListTags(BaseModel):
-    tags: List[Tags]
-
 
 async def makeWatermark():
 
@@ -108,10 +99,6 @@ def hello_world():
 def perform_healthcheck():
     return {'healthcheck': sys.platform}
 
-@app.post('/api/testtags', status_code=status.HTTP_200_OK)
-def test_tags(tags: ListTags):
-    return {'tags': tags}
-
 @app.post('/api/docx2pdf', status_code=status.HTTP_200_OK)
 async def docx2pdf(file: UploadFile = File(...)):
     arquivo = file.file.read()
@@ -123,14 +110,12 @@ async def docx2pdf(file: UploadFile = File(...)):
                     headers={"Content-Disposition": "attachment; filename=arquivo.pdf"})
 
 
-"""@app.post('/api/upload/replace_string')
-async def replace_string(file: UploadFile = File(...)):
-    arquivo_request: ArquivoRequest = ArquivoRequest()
+@app.post('/api/upload/replace_string')
+async def replace_string(tags: str, values: str, file: UploadFile = File(...)):
+    arquivo = file.file.read()
 
-    arquivo_request.nome = file.filename
-    arquivo_request.file = file.file.read()
-    arquivo_request.tags = None
-
-    retorno = await UploadBo.replaceString(arquivo_request)
-
-    return retorno"""
+    retorno = await UploadBo.replaceString(arquivo, tags, values)
+    
+    return Response(content=retorno,
+                    media_type="application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+                    headers={"Content-Disposition": "attachment; filename=arquivo.docx"})
