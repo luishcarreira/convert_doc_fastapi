@@ -31,14 +31,14 @@ async def makeWatermark():
     pdf.save()'''
 
     # imagem
-    img = ImageReader("logo3.png")
+    img = ImageReader("./app/logo3.png")
     pdf = canvas.Canvas("watermark.pdf", pagesize=A4)
     pdf.setFillColor(colors.grey, alpha=0.5)
     img_width, img_height = img.getSize()
     aspect = img_height / float(img_width)
     display_width = 380
     display_height = (display_width * aspect)
-    pdf.drawImage("logo3.png",
+    pdf.drawImage("./app/logo3.png",
                     (4*cm),
                     ((29.7 - 5) * cm) - display_height,
                     width=display_width,
