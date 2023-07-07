@@ -2,6 +2,6 @@ fastapi>=0.68.0,<0.69.0
 pydantic>=1.8.0,<2.0.0
 uvicorn>=0.15.0,<0.16.0
 python-multipart==0.0.6
-pypdf2==3.0.1
+pypdf2
 reportlab==3.6.12
 python-docx==0.8.11

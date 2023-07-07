@@ -31,14 +31,14 @@ async def makeWatermark():
     pdf.save()'''
 
     # imagem
-    img = ImageReader('./app/logo.jpg')
+    img = ImageReader("logo3.png")
     pdf = canvas.Canvas("watermark.pdf", pagesize=A4)
-    pdf.setFillColor(colors.grey, alpha=0.6)
+    pdf.setFillColor(colors.grey, alpha=0.5)
     img_width, img_height = img.getSize()
     aspect = img_height / float(img_width)
     display_width = 380
     display_height = (display_width * aspect)
-    pdf.drawImage('./app/logo.jpg',
+    pdf.drawImage("logo3.png",
                     (4*cm),
                     ((29.7 - 5) * cm) - display_height,
                     width=display_width,
@@ -53,17 +53,16 @@ async def addWaterMark(path: str) -> bytes:
 
     reader = PdfReader(path)
     page_indices = list(range(0, len(reader.pages)))
+    watermark_page = PdfReader("watermark.pdf").pages[0]
 
     writer = PdfWriter()
 
     for i in page_indices:
         content_page = reader.pages[i]
-
-        reader_stamp = PdfReader("watermark.pdf")
-        image_page = reader_stamp.pages[0]
-
-        image_page.merge_page(content_page)
-        writer.add_page(image_page)
+        mediabox = content_page.mediabox
+        content_page.merge_page(watermark_page)
+        content_page.mediabox = mediabox
+        writer.add_page(content_page)
 
     with open(path, "wb") as fp:
         writer.write(fp)
