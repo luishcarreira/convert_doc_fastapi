@@ -23,9 +23,6 @@ class UploadBo:
         tags_split = tags.split(',')
         values_split = values.split(',')
 
-        print(tags_split)
-        print(values_split)
-
         for section in doc.sections:
             footer = section.footer
             if footer is not None:
@@ -34,10 +31,8 @@ class UploadBo:
                         for cell in row.cells:
                             for paragraph in cell.paragraphs:
                                 for i in range(len(tags_split)):
-                                    if tags[i] in paragraph.text:
-                                        paragraph.runs[0].text = paragraph.runs[0].text.replace(tags[i], values[i])
-                                # if '#elaborador#' in paragraph.text:
-                                #     paragraph.runs[0].text = paragraph.runs[0].text.replace("#elaborador#", "João")
+                                    if tags_split[i] in paragraph.text:
+                                        paragraph.runs[0].text = paragraph.runs[0].text.replace(tags_split[i], values_split[i])
                 
 
         doc.save("arquivo.docx")

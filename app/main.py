@@ -1,4 +1,4 @@
-import sys
+
 import os
 import subprocess
 import re
@@ -13,8 +13,9 @@ from reportlab.lib.units import inch, cm
 from reportlab.lib import colors
 from reportlab.lib.utils import ImageReader
 from reportlab.lib.pagesizes import A4
+from docx import Document
 
-from bo.upload_bo import UploadBo
+from upload_bo import UploadBo
 
 app = FastAPI()
 
@@ -89,15 +90,42 @@ async def convert_to(file: bytes) -> str:
     os.remove("watermark.pdf")
 
     return retorno
+       
         
+async def replaceString(file: bytes, tags: str, values: str) -> str:
+        with open("arquivo.docx", "wb") as arquivo_temporario:
+            arquivo_temporario.write(file)
+
+        doc = Document("arquivo.docx")
+
+        tags_split = tags.split(',')
+        values_split = values.split(',')
+
+        for section in doc.sections:
+            footer = section.footer
+            if footer is not None:
+                for table in footer.tables:
+                    for row in table.rows:
+                        for cell in row.cells:
+                            for paragraph in cell.paragraphs:
+                                for i in range(len(tags_split)):
+                                    if tags_split[i] in paragraph.text:
+                                        paragraph.runs[0].text = paragraph.runs[0].text.replace(tags_split[i], values_split[i])
+                
+
+        doc.save("arquivo.docx")
+
+        with open("arquivo.docx", "rb") as arquivo_docx:
+            conteudo = arquivo_docx.read()
+
+        os.remove("arquivo.docx")
+
+        return conteudo
+
 
 @app.get('/')
 def hello_world():
     return {'message': 'Hello, World!'}
-
-@app.get('/healthcheck', status_code=status.HTTP_200_OK)
-def perform_healthcheck():
-    return {'healthcheck': sys.platform}
 
 @app.post('/api/docx2pdf', status_code=status.HTTP_200_OK)
 async def docx2pdf(file: UploadFile = File(...)):
@@ -110,7 +138,7 @@ async def docx2pdf(file: UploadFile = File(...)):
                     headers={"Content-Disposition": "attachment; filename=arquivo.pdf"})
 
 
-@app.post('/api/upload/replace_string')
+@app.post('/api/replace_string')
 async def replace_string(tags: str, values: str, file: UploadFile = File(...)):
     arquivo = file.file.read()
 
