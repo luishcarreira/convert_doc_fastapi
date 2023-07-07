@@ -15,7 +15,7 @@ from reportlab.lib.utils import ImageReader
 from reportlab.lib.pagesizes import A4
 from docx import Document
 
-from upload_bo import UploadBo
+#from upload_bo import UploadBo
 
 app = FastAPI()
 
@@ -142,7 +142,7 @@ async def docx2pdf(file: UploadFile = File(...)):
 async def replace_string(tags: str, values: str, file: UploadFile = File(...)):
     arquivo = file.file.read()
 
-    retorno = await UploadBo.replaceString(arquivo, tags, values)
+    retorno = await replaceString(arquivo, tags, values)
     
     return Response(content=retorno,
                     media_type="application/vnd.openxmlformats-officedocument.wordprocessingml.document",
