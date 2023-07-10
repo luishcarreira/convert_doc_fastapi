@@ -69,14 +69,14 @@ class UploadBo:
         pdf.save()'''
 
         # imagem
-        img = ImageReader('logo.jpg')
+        img = ImageReader("marca_dgua.png")
         pdf = canvas.Canvas("watermark.pdf", pagesize=A4)
-        pdf.setFillColor(colors.grey, alpha=0.6)
+        pdf.setFillColor(colors.grey, alpha=0.5)
         img_width, img_height = img.getSize()
         aspect = img_height / float(img_width)
         display_width = 380
         display_height = (display_width * aspect)
-        pdf.drawImage('logo.jpg',
+        pdf.drawImage("marca_dgua.png",
                         (4*cm),
                         ((29.7 - 5) * cm) - display_height,
                         width=display_width,
@@ -91,17 +91,16 @@ class UploadBo:
 
         reader = PdfReader(path)
         page_indices = list(range(0, len(reader.pages)))
+        watermark_page = PdfReader("watermark.pdf").pages[0]
 
         writer = PdfWriter()
 
         for i in page_indices:
             content_page = reader.pages[i]
-
-            reader_stamp = PdfReader("watermark.pdf")
-            image_page = reader_stamp.pages[0]
-
-            image_page.merge_page(content_page)
-            writer.add_page(image_page)
+            mediabox = content_page.mediabox
+            content_page.merge_page(watermark_page)
+            content_page.mediabox = mediabox
+            writer.add_page(content_page)
 
         with open(path, "wb") as fp:
             writer.write(fp)
@@ -112,19 +111,23 @@ class UploadBo:
         return conteudo_pdf
     
 
-    async def convert_to(file: bytes) -> str:
-        with open("arquivo.docx", "wb") as arquivo_temporario:
-            arquivo_temporario.write(file)
+    async def convert_to(doc: bytes, image: bytes) -> str:
+        with open("arquivo.docx", "wb") as doc_temporario:
+            doc_temporario.write(doc)
+
+        with open("marca_dgua.png", "wb") as image_temporario:
+            image_temporario.write(image)
 
         args = ['libreoffice', '--headless', '--convert-to', 'pdf', '--outdir', '.', 'arquivo.docx']
-        
+
         process = subprocess.run(args, stdout=subprocess.PIPE, stderr=subprocess.PIPE, timeout=15)
         filename = re.search('-> (.*?) using filter', process.stdout.decode())
-        
+
         retorno = await UploadBo.addWaterMark(filename.group(1))
- 
+
         os.remove(filename.group(1))
         os.remove("arquivo.docx")
         os.remove("watermark.pdf")
+        os.remove("marca_dgua.png")
 
         return retorno
