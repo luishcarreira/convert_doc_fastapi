@@ -3,6 +3,8 @@ services:
     name: webfastapi
     env: docker
     dockerfilePath: ./Dockerfile
+    dockerContext: ./app
+    dockerCommand: "uvicorn app.main:app --host 0.0.0.0 --port 8000"
     repo: "https://github.com/luishcarreira/convert_doc_fastapi.git"
     region: oregon
     plan: free
