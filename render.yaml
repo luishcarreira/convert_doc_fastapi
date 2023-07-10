@@ -9,5 +9,4 @@ services:
     branch: add_render_yaml
     region: oregon
     plan: free
-    branch: main
     numInstances: 1
