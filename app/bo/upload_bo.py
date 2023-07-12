@@ -23,6 +23,12 @@ class UploadBo:
         tags_split = tags.split(',')
         values_split = values.split(',')
 
+        # body document
+        for paragraph in doc.paragraphs:
+            for i in range(len(tags_split)):
+                UploadBo.replace_text_in_paragraph(paragraph, tags_split[i], values_split[i])
+
+        # footer
         for section in doc.sections:
             footer = section.footer
             if footer is not None:
@@ -31,8 +37,7 @@ class UploadBo:
                         for cell in row.cells:
                             for paragraph in cell.paragraphs:
                                 for i in range(len(tags_split)):
-                                    if tags_split[i] in paragraph.text:
-                                        paragraph.runs[0].text = paragraph.runs[0].text.replace(tags_split[i], values_split[i])
+                                    UploadBo.replace_text_in_paragraph(paragraph, tags_split[i], values_split[i])
                 
 
         doc.save("arquivo.docx")
@@ -45,17 +50,14 @@ class UploadBo:
         return conteudo
 
 
-    async def convertToPdf(file: str):
-        #version windows
-        '''caminho_docx = "arquivo.docx"
-
-        with open(caminho_docx, "wb") as arquivo_temporario:
-            shutil.copyfileobj(file, arquivo_temporario)
-
-        convert(caminho_docx)
-
-        os.remove(caminho_docx)'''
-
+    def replace_text_in_paragraph(paragraph, key, value):
+        if key in paragraph.text:
+            inline = paragraph.runs
+            for item in inline:
+                print(item.text)
+                if key in item.text:
+                    print(key)
+                    item.text = item.text.replace(key, value)
 
     async def makeWatermark():
 
@@ -131,3 +133,16 @@ class UploadBo:
         os.remove("marca_dgua.png")
 
         return retorno
+    
+
+    #version windows
+    async def convertToPdf(file: str):
+        
+        '''caminho_docx = "arquivo.docx"
+
+        with open(caminho_docx, "wb") as arquivo_temporario:
+            shutil.copyfileobj(file, arquivo_temporario)
+
+        convert(caminho_docx)
+
+        os.remove(caminho_docx)'''
