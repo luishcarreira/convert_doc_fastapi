@@ -5,7 +5,7 @@ services:
     dockerfilePath: ./Dockerfile
     dockerCommand: uvicorn app.main:app --host 0.0.0.0 --port 8000
     repo: https://github.com/luishcarreira/convert_doc_fastapi.git
-    branch: add_render_yaml
+    branch: dev
     region: oregon
     plan: free
     numInstances: 1
