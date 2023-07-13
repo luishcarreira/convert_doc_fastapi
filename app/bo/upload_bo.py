@@ -23,6 +23,12 @@ class UploadBo:
         tags_split = tags.split(',')
         values_split = values.split(',')
 
+        # body document
+        for paragraph in doc.paragraphs:
+            for i in range(len(tags_split)):
+                UploadBo.replace_text_in_paragraph(paragraph, tags_split[i], values_split[i])
+
+        # footer
         for section in doc.sections:
             footer = section.footer
             if footer is not None:
@@ -31,8 +37,7 @@ class UploadBo:
                         for cell in row.cells:
                             for paragraph in cell.paragraphs:
                                 for i in range(len(tags_split)):
-                                    if tags_split[i] in paragraph.text:
-                                        paragraph.runs[0].text = paragraph.runs[0].text.replace(tags_split[i], values_split[i])
+                                    UploadBo.replace_text_in_paragraph(paragraph, tags_split[i], values_split[i])
                 
 
         doc.save("arquivo.docx")
@@ -45,17 +50,14 @@ class UploadBo:
         return conteudo
 
 
-    async def convertToPdf(file: str):
-        #version windows
-        '''caminho_docx = "arquivo.docx"
-
-        with open(caminho_docx, "wb") as arquivo_temporario:
-            shutil.copyfileobj(file, arquivo_temporario)
-
-        convert(caminho_docx)
-
-        os.remove(caminho_docx)'''
-
+    def replace_text_in_paragraph(paragraph, key, value):
+        if key in paragraph.text:
+            inline = paragraph.runs
+            for item in inline:
+                print(item.text)
+                if key in item.text:
+                    print(key)
+                    item.text = item.text.replace(key, value)
 
     async def makeWatermark():
 
@@ -69,14 +71,14 @@ class UploadBo:
         pdf.save()'''
 
         # imagem
-        img = ImageReader('logo.jpg')
+        img = ImageReader("marca_dgua.png")
         pdf = canvas.Canvas("watermark.pdf", pagesize=A4)
-        pdf.setFillColor(colors.grey, alpha=0.6)
+        pdf.setFillColor(colors.grey, alpha=0.5)
         img_width, img_height = img.getSize()
         aspect = img_height / float(img_width)
         display_width = 380
         display_height = (display_width * aspect)
-        pdf.drawImage('logo.jpg',
+        pdf.drawImage("marca_dgua.png",
                         (4*cm),
                         ((29.7 - 5) * cm) - display_height,
                         width=display_width,
@@ -91,17 +93,16 @@ class UploadBo:
 
         reader = PdfReader(path)
         page_indices = list(range(0, len(reader.pages)))
+        watermark_page = PdfReader("watermark.pdf").pages[0]
 
         writer = PdfWriter()
 
         for i in page_indices:
             content_page = reader.pages[i]
-
-            reader_stamp = PdfReader("watermark.pdf")
-            image_page = reader_stamp.pages[0]
-
-            image_page.merge_page(content_page)
-            writer.add_page(image_page)
+            mediabox = content_page.mediabox
+            content_page.merge_page(watermark_page)
+            content_page.mediabox = mediabox
+            writer.add_page(content_page)
 
         with open(path, "wb") as fp:
             writer.write(fp)
@@ -112,19 +113,36 @@ class UploadBo:
         return conteudo_pdf
     
 
-    async def convert_to(file: bytes) -> str:
-        with open("arquivo.docx", "wb") as arquivo_temporario:
-            arquivo_temporario.write(file)
+    async def convert_to(doc: bytes, image: bytes) -> str:
+        with open("arquivo.docx", "wb") as doc_temporario:
+            doc_temporario.write(doc)
+
+        with open("marca_dgua.png", "wb") as image_temporario:
+            image_temporario.write(image)
 
         args = ['libreoffice', '--headless', '--convert-to', 'pdf', '--outdir', '.', 'arquivo.docx']
-        
+
         process = subprocess.run(args, stdout=subprocess.PIPE, stderr=subprocess.PIPE, timeout=15)
         filename = re.search('-> (.*?) using filter', process.stdout.decode())
-        
+
         retorno = await UploadBo.addWaterMark(filename.group(1))
- 
+
         os.remove(filename.group(1))
         os.remove("arquivo.docx")
         os.remove("watermark.pdf")
+        os.remove("marca_dgua.png")
 
         return retorno
+    
+
+    #version windows
+    async def convertToPdf(file: str):
+        
+        '''caminho_docx = "arquivo.docx"
+
+        with open(caminho_docx, "wb") as arquivo_temporario:
+            shutil.copyfileobj(file, arquivo_temporario)
+
+        convert(caminho_docx)
+
+        os.remove(caminho_docx)'''

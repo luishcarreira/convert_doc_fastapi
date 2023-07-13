@@ -1,7 +1,15 @@
-fastapi>=0.68.0,<0.69.0
-pydantic>=1.8.0,<2.0.0
-uvicorn>=0.15.0,<0.16.0
-python-multipart==0.0.6
-pypdf2
-reportlab==3.6.12
+asgiref==3.7.2
+click==8.1.4
+fastapi==0.68.2
+h11==0.14.0
+lxml==4.9.3
+Pillow==10.0.0
+pydantic==1.10.11
+pypdf @ git+https://github.com/py-pdf/PyPDF2.git@c239073d64b3c21b1737f4c15267038c6387710d
+PyPDF2==3.0.1
 python-docx==0.8.11
+python-multipart==0.0.6
+reportlab==3.6.12
+starlette==0.14.2
+typing_extensions==4.7.1
+uvicorn==0.15.0
