@@ -23,15 +23,41 @@ class UploadBo:
         tags_split = tags.split(',')
         values_split = values.split(',')
 
+        # header
+        for section in doc.sections:
+            header = section.header
+            if header is not None:
+                for paragraph in header.paragraphs:
+                    for i in range(len(tags_split)):
+                        UploadBo.replace_text_in_paragraph(paragraph, tags_split[i], values_split[i])
+
+                for table in header.tables:
+                    for row in table.rows:
+                        for cell in row.cells:
+                            for paragraph in cell.paragraphs:
+                                for i in range(len(tags_split)):
+                                    UploadBo.replace_text_in_paragraph(paragraph, tags_split[i], values_split[i])
+
         # body document
         for paragraph in doc.paragraphs:
             for i in range(len(tags_split)):
                 UploadBo.replace_text_in_paragraph(paragraph, tags_split[i], values_split[i])
 
+        for table in doc.tables:
+            for row in table.rows:
+                for cell in row.cells:
+                    for paragraph in cell.paragraphs:
+                        for i in range(len(tags_split)):
+                            UploadBo.replace_text_in_paragraph(paragraph, tags_split[i], values_split[i])
+
         # footer
         for section in doc.sections:
             footer = section.footer
             if footer is not None:
+                for paragraph in footer.paragraphs:
+                    for i in range(len(tags_split)):
+                        UploadBo.replace_text_in_paragraph(paragraph, tags_split[i], values_split[i])
+
                 for table in footer.tables:
                     for row in table.rows:
                         for cell in row.cells:
@@ -54,9 +80,7 @@ class UploadBo:
         if key in paragraph.text:
             inline = paragraph.runs
             for item in inline:
-                print(item.text)
                 if key in item.text:
-                    print(key)
                     item.text = item.text.replace(key, value)
 
     async def makeWatermark():
