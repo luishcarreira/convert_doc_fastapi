@@ -1,7 +1,7 @@
 
 from fastapi import FastAPI, File, UploadFile, Response, status
 
-from .bo.upload_bo import UploadBo
+from bo.upload_bo import UploadBo
 
 app = FastAPI()
 
@@ -31,3 +31,7 @@ async def replace_string(tags: str, values: str, file: UploadFile = File(...)):
     return Response(content=retorno,
                     media_type="application/vnd.openxmlformats-officedocument.wordprocessingml.document",
                     headers={"Content-Disposition": "attachment; filename=arquivo.docx"})
+
+if __name__ == "__main__":
+    import uvicorn
+    uvicorn.run('main:app', host='0.0.0.0',port=8000, reload=True)
