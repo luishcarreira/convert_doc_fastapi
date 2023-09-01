@@ -15,3 +15,5 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 RUN pip install --no-cache-dir --upgrade -r requirements.txt
  
 COPY . .
+
+CMD [ "python", "main.py" ]
